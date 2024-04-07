@@ -7,15 +7,32 @@ namespace ChalVerAssist
     {
         static public void Initialise()
         {
-
+            
             On.ExtEnumInitializer.InitTypes += InitExtEnumHook;
             On.RainWorldGame.Update += RainWorldGameUpdateHook;
             On.HUD.HUD.InitSinglePlayerHud += HUDInitHook;
             On.Player.Destroy += PlayerDestroyHook;
-            On.SaveState.SaveToString += SaveStringHook;
-            On.SaveState.LoadGame += LoadGameHook;
+            On.DeathPersistentSaveData.SaveToString += SaveStringHook;
+            On.DeathPersistentSaveData.FromString += FromStringHook;
             On.RainWorldGame.ctor += GameConstructorHook;
             On.RainWorld.OnModsInit += ModsInitHook;
+        }
+
+        private static void FromStringHook(On.DeathPersistentSaveData.orig_FromString orig, DeathPersistentSaveData self, string s)
+        {
+            orig(self, s);
+            if (ChallengeSaveData.Instance != null)
+                return;
+            ChallengeSaveData save = new ChallengeSaveData();
+            save.FromString(self.unrecognizedSaveStrings);
+        }
+
+        private static string SaveStringHook(On.DeathPersistentSaveData.orig_SaveToString orig, DeathPersistentSaveData self, bool saveAsIfPlayerDied, bool saveAsIfPlayerQuit)
+        {
+            string text = orig(self, saveAsIfPlayerDied, saveAsIfPlayerQuit);
+            text += ChallengeSaveData.Instance.SaveToString();
+            //ChalVerAssist.Logger.LogMessage("Total save!" + text);
+            return text;
         }
 
         private static void ModsInitHook(On.RainWorld.orig_OnModsInit orig, RainWorld self)
@@ -39,21 +56,6 @@ namespace ChalVerAssist
             foreach (var ch in ChallengeDefinition.Instances)
                 ch.Destroy();
             orig(self, manager);
-        }
-
-        private static void LoadGameHook(On.SaveState.orig_LoadGame orig, SaveState self, string str, RainWorldGame game)
-        {
-            orig(self, str, game);
-            ChallengeSaveData save = new ChallengeSaveData(self);
-            save.LoadGame(self.unrecognizedSaveStrings);
-        }
-
-        private static string SaveStringHook(On.SaveState.orig_SaveToString orig, SaveState self)
-        {
-            string text = orig(self);
-            text += ChallengeSaveData.Instance.SaveToString();
-            //ChalVerAssist.Logger.LogMessage("Total save!" + text);
-            return text;
         }
 
         private static void PlayerDestroyHook(On.Player.orig_Destroy orig, Player self)

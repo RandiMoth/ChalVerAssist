@@ -16,6 +16,7 @@ namespace ChalVerAssist.Challenges
             entranceNode = 0;
             difficulty = new ChallengeDifficulty(8.31f);
             allowedSlugcats = new List<SlugcatStats.Name>() { SlugcatStats.Name.White };
+            BestTime = ChallengeSaveData.Instance.UTurnBestTime;
             Activate();
         }
         public static UTurnChallenge Instance;

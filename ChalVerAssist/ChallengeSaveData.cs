@@ -7,13 +7,10 @@ namespace ChalVerAssist
 {
     public class ChallengeSaveData
     {
-        public ChallengeSaveData(SaveState saveState)
+        public ChallengeSaveData()
         {
-            this.saveState = saveState;
             Instance = this;
         }
-
-        public SaveState saveState;
 
         public static ChallengeSaveData Instance;
 
@@ -26,7 +23,7 @@ namespace ChalVerAssist
             //ChalVerAssist.Logger.LogMessage("Saved!" + text);
             return text;
         }
-        public void LoadGame(List<string> saveStrings)
+        public void FromString(List<string> saveStrings)
         {
             if (saveStrings.Count == 0)
                 return;

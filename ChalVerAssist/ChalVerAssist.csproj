@@ -59,9 +59,6 @@
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>..\..\RainWorld_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.InputModule">
-      <HintPath>..\..\RainWorld_Data\Managed\UnityEngine.InputModule.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChallengeDefinition.cs" />

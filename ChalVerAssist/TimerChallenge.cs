@@ -13,8 +13,6 @@ namespace ChalVerAssist
         {
             camera = game.cameras[0];
             currentRoom = camera.room.abstractRoom.name;
-            if (ChallengeSaveData.Instance.UTurnBestTime != -1)
-                BestTime = ChallengeSaveData.Instance.UTurnBestTime;
             InitTimer();
         }
         public void InitTimer()
@@ -32,8 +30,7 @@ namespace ChalVerAssist
             hud.AddPart(timer);
             bestTimeTracker = new BestTimeTracker(hud, null, hud.fContainers[1], this);
             hud.AddPart(bestTimeTracker);
-            if (BestTime != -1)
-                bestTimeTracker.BestTime = BestTime;
+            bestTimeTracker.BestTime = BestTime;
             prevTimeTracker = new BestTimeTracker(hud, null, hud.fContainers[1], this, "Previous time: ");
             hud.AddPart(prevTimeTracker);
         }
@@ -120,7 +117,7 @@ namespace ChalVerAssist
             bestTimeTracker.BestTime = BestTime;
             ChallengeSaveData.Instance.UTurnBestTime = BestTime;
             timer.paused = true;
-            timer.remainVisibleCounter = 100;
+            timer.remainVisibleCounter = 120;
             if (BestTime < target)
                 base.Complete();
         }
@@ -139,6 +136,7 @@ namespace ChalVerAssist
         }
         protected virtual void ResetBestTime()
         {
+            BestTime = -1;
             if (bestTimeTracker == null)
                 return;
             bestTimeTracker.BestTime = -1;

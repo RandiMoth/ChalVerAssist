@@ -51,7 +51,6 @@ namespace ChalVerAssist
             opTab.AddItems(opKeyBinder, opLabel2);
         }
 
-        private OpLabel currentPresetLabel;
         private ChalVerAssist plugin;
 
         public ChalVerOptionInterface(ChalVerAssist plugin)
