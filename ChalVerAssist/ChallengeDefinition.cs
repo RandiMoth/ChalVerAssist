@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace ChalVerAssist
@@ -11,25 +7,57 @@ namespace ChalVerAssist
     {
         public bool enabled;
         public ChallengeDifficulty difficulty;
-        public ChallengeDefinition(ChallengeID id, RainWorldGame game, float difficulty, string name, string description, bool isMSC = false)
+        public ChallengeDefinition(RainWorldGame game)
         {
             //ChalVerAssist.Logger.LogMessage("Challenge created: " + name);
-            this.id = id;
-            this.difficulty = new ChallengeDifficulty(difficulty);
-            this.name = name;
-            this.description = description;
             player = game.Players[0].realizedCreature as Player;
             this.game = game;
-            IsMSC = isMSC;
             Instances.Add(this);
         }
         public RainWorldGame game;
-        public ChallengeID id;
+        public ChallengeID id = ChallengeID.None;
         public string name;
         public string description;
         public Player player;
         public bool active;
         public static List<ChallengeDefinition> Instances = new List<ChallengeDefinition>();
+        public virtual void Update()
+        {
+            if (!active)
+                return;
+            if (game.Players[0].realizedCreature as Player != player)
+                player = game.Players[0].realizedCreature as Player;
+        }
+        public virtual bool Allowed
+        {
+            get
+            {
+                if (IsMSC != ModManager.MSC)
+                    return false;
+                return true;
+            }
+        }
+        public virtual void Activate()
+        {
+            //if(Allowed)
+            active = true;
+        }
+        public virtual void Complete()
+        {
+
+        }
+        public virtual void Fail()
+        {
+
+        }
+        public override void Destroy()
+        {
+            //ChalVerAssist.Logger.LogMessage("Challenge destroyed: " + name);
+            base.Destroy();
+        }
+        public List<SlugcatStats.Name> allowedSlugcats = new List<SlugcatStats.Name>();
+        public bool IsMSC;
+
         public class ChallengeDifficulty
         {
             public Color color;
@@ -63,30 +91,5 @@ namespace ChalVerAssist
                 description = "Only Slugcats that have endured many cycles and mastered their environment will be able to complete these. These have a rated difficulty above 7.";
             }
         }
-        public virtual void Update()
-        {
-            if (!active)
-                return;
-            if (game.Players[0].realizedCreature as Player != player)
-                player = game.Players[0].realizedCreature as Player;
-        }
-        public virtual void Activate()
-        {
-            active = true;
-        }
-        public virtual void Complete()
-        {
-
-        }
-        public virtual void Fail()
-        {
-
-        }
-        public override void Destroy()
-        {
-            //ChalVerAssist.Logger.LogMessage("Challenge destroyed: " + name);
-            base.Destroy();
-        }
-        public bool IsMSC;
     }
 }

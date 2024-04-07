@@ -1,31 +1,21 @@
 ﻿using HUD;
-using JetBrains.Annotations;
 using MoreSlugcats;
 using RWCustom;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.PerformanceData;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.LowLevel;
 
 namespace ChalVerAssist
 {
     public class TimerChallenge : ChallengeDefinition
     {
-        public TimerChallenge(ChallengeID id, RainWorldGame game, float diff, string name, string desc, int secs, List<string> rooms, int entranceNode, bool isMSC = false) : base(id, game, diff, name, desc, isMSC)
+        public TimerChallenge(RainWorldGame game) : base(game)
         {
-            length = secs * 40;
             camera = game.cameras[0];
             currentRoom = camera.room.abstractRoom.name;
-            this.rooms = rooms;
-            numRooms = rooms.Count;
             if (ChallengeSaveData.Instance.UTurnBestTime != -1)
                 BestTime = ChallengeSaveData.Instance.UTurnBestTime;
             InitTimer();
-            this.entranceNode = entranceNode;
         }
         public void InitTimer()
         {
@@ -48,9 +38,8 @@ namespace ChalVerAssist
             hud.AddPart(prevTimeTracker);
         }
         public int entranceNode;
-        public int length;
-        private readonly List<string> rooms;
-        private int numRooms;
+        protected double target = -1;
+        protected List<string> rooms = new List<string>();
         private string currentRoom;
         private int roomTracker = -1;
         private int cooldown = 0;
@@ -70,12 +59,24 @@ namespace ChalVerAssist
                 activeTimer = value;
             }
         }
+        private bool logFlag;
         private bool activeTimer;
         public override void Update()
         {
             base.Update();
-            if (!active || rooms.Count <= 1 || timer == null)
+            if (rooms.Count <= 1)
+            {
+                if (!logFlag)
+                {
+                    ChalVerAssist.Logger.LogWarning("Challenge with " + rooms.Count + " room(s), should never happen!");
+                    logFlag = true;
+                }
                 return;
+            }
+            if (!active || timer == null)
+            {
+                return;
+            }
             if (game.cameras[0] != camera)
             {
                 camera = game.cameras[0];
@@ -100,7 +101,7 @@ namespace ChalVerAssist
                 {
                     currentRoom = playerRoom;
                     roomTracker++;
-                    if (roomTracker == numRooms - 1)
+                    if (roomTracker == rooms.Count - 1)
                     {
                         Complete();
                     }
@@ -120,7 +121,7 @@ namespace ChalVerAssist
             ChallengeSaveData.Instance.UTurnBestTime = BestTime;
             timer.paused = true;
             timer.remainVisibleCounter = 100;
-            if (BestTime < 60000)
+            if (BestTime < target)
                 base.Complete();
         }
         private void ResetTimer()
@@ -136,7 +137,7 @@ namespace ChalVerAssist
             roomTracker = 0;
             timer.CalcOffset();
         }
-        protected void ResetBestTime()
+        protected virtual void ResetBestTime()
         {
             if (bestTimeTracker == null)
                 return;
@@ -147,7 +148,7 @@ namespace ChalVerAssist
     public class ChallengeTimer : SpeedRunTimer
     {
         public TimerChallenge challenge;
-        
+
         private double offset;
 
         public bool paused;
@@ -218,7 +219,7 @@ namespace ChalVerAssist
             }
             else
             {
-                timeLabel.alpha = Mathf.Max(0.2f, Mathf.Pow(Mathf.Max(0f, Mathf.Lerp(lastFade, fade, timeStacker)), 1.5f)); 
+                timeLabel.alpha = Mathf.Max(0.2f, Mathf.Pow(Mathf.Max(0f, Mathf.Lerp(lastFade, fade, timeStacker)), 1.5f));
             }
             timeLabel.alignment = FLabelAlignment.Left;
             timeLabel.x = DrawPos(timeStacker).x;
