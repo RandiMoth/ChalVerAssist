@@ -103,6 +103,11 @@ namespace ChalVerAssist
                         Complete();
                     }
                 }
+                else if (roomTracker > 0 && rooms[roomTracker - 1] == playerRoom)
+                {
+                    currentRoom = playerRoom;
+                    roomTracker--;
+                }
                 else
                     ResetTimer();
             }

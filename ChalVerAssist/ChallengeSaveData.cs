@@ -19,8 +19,8 @@ namespace ChalVerAssist
         public string SaveToString()
         {
             string text = "";
-            text += string.Format(CultureInfo.InvariantCulture, "UTURNTIME<svB>{0}<svA>", UTurnBestTime);
-            //ChalVerAssist.Logger.LogMessage("Saved!" + text);
+            text += string.Format(CultureInfo.InvariantCulture, "UTURNTIME<dpB>{0}<dpA>", UTurnBestTime);
+            ChalVerAssist.Logger.LogMessage("Saved!" + text);
             return text;
         }
         public void FromString(List<string> saveStrings)
@@ -30,13 +30,20 @@ namespace ChalVerAssist
             string[] array;
             for (int i = 0; i < saveStrings.Count; i++)
             {
-                //ChalVerAssist.Logger.LogMessage("Loading!" + saveStrings[i]);
-                array = Regex.Split(saveStrings[i], "<svB>");
-                switch (array[0])
+                ChalVerAssist.Logger.LogMessage("Loading!" + saveStrings[i]);
+                array = Regex.Split(saveStrings[i], "<dpB>");
+                try
                 {
-                    case "UTURNTIME":
-                        UTurnBestTime = Convert.ToDouble(array[1]);
-                        break;
+                    switch (array[0])
+                    {
+                        case "UTURNTIME":
+                            UTurnBestTime = Convert.ToDouble(array[1]);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ChalVerAssist.Logger.LogError(ex);
                 }
             }
             //ChalVerAssist.Logger.LogMessage("Loading finished! U-Turn time: " + UTurnBestTime.ToString());
