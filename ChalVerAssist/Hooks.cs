@@ -30,7 +30,8 @@ namespace ChalVerAssist
         private static string SaveStringHook(On.DeathPersistentSaveData.orig_SaveToString orig, DeathPersistentSaveData self, bool saveAsIfPlayerDied, bool saveAsIfPlayerQuit)
         {
             string text = orig(self, saveAsIfPlayerDied, saveAsIfPlayerQuit);
-            text += ChallengeSaveData.Instance.SaveToString();
+            if (ChallengeSaveData.Instance != null)
+                text += ChallengeSaveData.Instance.SaveToString();
             //ChalVerAssist.Logger.LogMessage("Total save!" + text);
             return text;
         }

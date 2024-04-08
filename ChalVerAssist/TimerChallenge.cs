@@ -218,7 +218,7 @@ namespace ChalVerAssist
         {
             if (!challenge.ActiveTimer)
             {
-                timeLabel.alpha = Mathf.Min(0.2f, Mathf.Pow(Mathf.Max(0f, Mathf.Lerp(lastFade, fade, timeStacker)), 1.5f));
+                timeLabel.alpha = Mathf.Pow(Mathf.Max(0f, Mathf.Lerp(lastFade, fade, timeStacker)), 1.5f);
             }
             else
             {
