@@ -69,6 +69,8 @@ namespace ChalVerAssist
                 cooldown--;
                 return;
             }
+            if (!activeTimer && challenge.Available)
+                EnableTimer();
         }
         public void FromString(string str)
         {

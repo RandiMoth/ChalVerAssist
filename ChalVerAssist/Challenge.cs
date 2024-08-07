@@ -217,8 +217,6 @@ namespace ChalVerAssist
         {
             MetEcho = false;
             roomIndex = 0;
-            if (data.HasTimer)
-                timer.EnableTimer();
         }
         public void Fail()
         {
