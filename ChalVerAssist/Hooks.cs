@@ -1,5 +1,7 @@
-﻿using ChalVerAssist.Challenges;
+﻿using ChalVerAssist.GUI;
 using System;
+using System.Linq;
+using UnityEngine;
 
 namespace ChalVerAssist
 {
@@ -7,31 +9,44 @@ namespace ChalVerAssist
     {
         static public void Initialise()
         {
-            
-            On.ExtEnumInitializer.InitTypes += InitExtEnumHook;
+            On.ExtEnumInitializer.InitTypes += InitTypesHook;
             On.RainWorldGame.Update += RainWorldGameUpdateHook;
             On.HUD.HUD.InitSinglePlayerHud += HUDInitHook;
-            On.Player.Destroy += PlayerDestroyHook;
-            On.DeathPersistentSaveData.SaveToString += SaveStringHook;
-            On.DeathPersistentSaveData.FromString += FromStringHook;
+            On.PlayerProgression.MiscProgressionData.ToString += SaveStringHook;
+            On.PlayerProgression.MiscProgressionData.FromString += FromStringHook;
             On.RainWorldGame.ctor += GameConstructorHook;
             On.RainWorld.OnModsInit += ModsInitHook;
+            On.Menu.SlugcatSelectMenu.ctor += SlugcatSelectMenuConstructorHook;
+            On.Ghost.StartConversation += Ghost_StartConversation;
         }
 
-        private static void FromStringHook(On.DeathPersistentSaveData.orig_FromString orig, DeathPersistentSaveData self, string s)
+        private static void Ghost_StartConversation(On.Ghost.orig_StartConversation orig, Ghost self)
+        {
+            orig(self);
+            if (Challenge.ActiveChallenge?.data.MeetEcho ?? false && self.worldGhost.ghostID == GhostWorldPresence.GetGhostID(Challenge.ActiveChallenge.data?.Rooms.Last().Split('_')[0] ?? "NoGhost"))
+                Challenge.ActiveChallenge.MetEcho = true;
+        }
+
+        private static void SlugcatSelectMenuConstructorHook(On.Menu.SlugcatSelectMenu.orig_ctor orig, Menu.SlugcatSelectMenu self, ProcessManager manager)
+        {
+            orig(self, manager);
+            self.pages[0].subObjects.Add(new ScugSelectOpener(self, self.pages[0], new Vector2(manager.rainWorld.screenSize.x / 2 - 100f, manager.rainWorld.screenSize.y - 100f)));
+        }
+
+        private static void FromStringHook(On.PlayerProgression.MiscProgressionData.orig_FromString orig, PlayerProgression.MiscProgressionData self, string s)
         {
             orig(self, s);
-            if (ChallengeSaveData.Instance != null)
+            if (ChallengeMSD.Instance != null)
                 return;
-            ChallengeSaveData save = new ChallengeSaveData();
-            save.FromString(self.unrecognizedSaveStrings);
+            ChallengeMSD save = new ChallengeMSD();
+            save.FromString(ref self.unrecognizedSaveStrings);
         }
 
-        private static string SaveStringHook(On.DeathPersistentSaveData.orig_SaveToString orig, DeathPersistentSaveData self, bool saveAsIfPlayerDied, bool saveAsIfPlayerQuit)
+        private static string SaveStringHook(On.PlayerProgression.MiscProgressionData.orig_ToString orig, PlayerProgression.MiscProgressionData self)
         {
-            string text = orig(self, saveAsIfPlayerDied, saveAsIfPlayerQuit);
-            if (ChallengeSaveData.Instance != null)
-                text += ChallengeSaveData.Instance.SaveToString();
+            string text = orig(self);
+            if (ChallengeMSD.Instance != null)
+                text += ChallengeMSD.Instance.SaveToString();
             //ChalVerAssist.Logger.LogMessage("Total save!" + text);
             return text;
         }
@@ -51,40 +66,35 @@ namespace ChalVerAssist
                 and other mods may stop working */
             }
         }
-
+        
         private static void GameConstructorHook(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager manager)
         {
-            foreach (var ch in ChallengeDefinition.Instances)
-                ch.Destroy();
             orig(self, manager);
+            if (Challenge.SelectedChallenge != null)
+                _ = new Challenge(Challenge.SelectedChallenge, self);
         }
 
-        private static void PlayerDestroyHook(On.Player.orig_Destroy orig, Player self)
-        {
-            orig(self);
-        }
 
         private static void HUDInitHook(On.HUD.HUD.orig_InitSinglePlayerHud orig, HUD.HUD self, RoomCamera cam)
         {
             orig(self, cam);
-            UTurnChallenge.Instance?.InitTimer(self);
-        }
-
-        static private void InitExtEnumHook(On.ExtEnumInitializer.orig_InitTypes orig)
-        {
-            orig();
-            _ = ChallengeID.None;
+            if (Challenge.ActiveChallenge?.data.HasTimer ?? false)
+                Challenge.ActiveChallenge.timer.InitTimer(self);
         }
 
         private static void RainWorldGameUpdateHook(On.RainWorldGame.orig_Update orig, RainWorldGame self)
         {
             orig(self);
-            if (self.IsStorySession && self.Players.Count > 0 && self.Players[0].realizedCreature != null)
+            if (Challenge.ActiveChallenge != null && self.IsStorySession && self.Players.Count > 0 && self.Players[0].realizedCreature != null)
             {
-                if (UTurnChallenge.Instance == null)
-                    new UTurnChallenge(self);
-                UTurnChallenge.Instance.Update();
+                Challenge.ActiveChallenge.Update();
             }
+        }
+
+        private static void InitTypesHook(On.ExtEnumInitializer.orig_InitTypes orig)
+        {
+            orig();
+            _ = ChallengeData.PathTypeID.Ordered;
         }
     }
 }

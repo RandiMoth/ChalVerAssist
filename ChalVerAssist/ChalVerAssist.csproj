@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\RainWorld_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
     <Reference Include="BepInEx">
       <HintPath>..\..\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
@@ -61,13 +64,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChallengeDefinition.cs" />
-    <Compile Include="ChallengeID.cs" />
-    <Compile Include="ChallengeSaveData.cs" />
-    <Compile Include="Challenges\UTurnChallenge.cs" />
+    <Compile Include="Challenge.cs" />
+    <Compile Include="ChallengeMSD.cs" />
+    <Compile Include="ChallengeData.cs" />
+    <Compile Include="GUI\ChallengeTimerDisplay.cs" />
+    <Compile Include="GUI\ScugSelectOpener.cs" />
     <Compile Include="Hooks.cs" />
+    <Compile Include="ModTester.cs" />
     <Compile Include="RemixUI\RemixUI.cs" />
-    <Compile Include="TimerChallenge.cs" />
+    <Compile Include="ChallengeTimer.cs" />
     <Compile Include="HoverText.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
