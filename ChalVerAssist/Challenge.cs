@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Threading;
 using UnityEngine;
@@ -14,8 +15,8 @@ namespace ChalVerAssist
             //ChalVerAssist.Logger.LogMessage("Challenge created: " + name);
             this.data = data;
             this.game = game;
-            camera = game.cameras[0];
             ActiveChallenge = this;
+            camera = game.cameras[0];
             SetAllowed();
             if (data.HasTimer)
                 timer = new ChallengeTimer(game, this);
@@ -34,7 +35,14 @@ namespace ChalVerAssist
         public bool Available
         {
             get { return available; }
-            set { _forcedUnavailability = !value; } // Made to be able to force a challenge to fail with extra code.
+            set {
+                _forcedUnavailability = !value; // A challenge shouldn't be force set to be available, but it should be possible to force fail
+                if (_forcedUnavailability && available)
+                {
+                    available = false;
+                    Fail();
+                }
+            }
         }
         private string playerRoom;
         public string PlayerRoom
@@ -43,6 +51,7 @@ namespace ChalVerAssist
             set { 
                 if (playerRoom != value)
                 {
+                    ChalVerAssist.Logger.LogMessage($"New room! {value}");
                     playerRoom = value;
                     dirtyRoom = true;
                 }
@@ -90,12 +99,12 @@ namespace ChalVerAssist
 
         public void Update()
         {
-            if (!allowed)
-                return;
             if (Input.GetKey(ChalVerOptionInterface.cfgUTurnTimerReset.Value))
             {
                 ResetRecords();
             }
+            if (!allowed)
+                return;
             // Slugcat must exist for the challenge to be updated
             if (player == null)
             {
@@ -130,10 +139,11 @@ namespace ChalVerAssist
             }
             else
                 return;
-            
             // Room crossing win condition
-            if (data.Rooms != null && !hasVisitedRooms && dirtyRoom && !RoomSpecificConditions())
+            if (data.Rooms != null && !hasVisitedRooms && dirtyRoom && RoomSpecificConditions())
             {
+                ChalVerAssist.Logger.LogMessage($"Room check: {playerRoom}. Current index: {roomIndex}.");
+                ChalVerAssist.Logger.LogMessage(string.Join(", ", data.Rooms));
                 dirtyRoom = false;
                 if (data.PathType == ChallengeData.PathTypeID.Unordered)
                 {
@@ -144,7 +154,9 @@ namespace ChalVerAssist
                 }
                 else
                 {
-                    if (playerRoom == data.Rooms[roomIndex])
+                    if (roomIndex > 1 && playerRoom == data.Rooms[roomIndex - 2])
+                        roomIndex--;
+                    else if (playerRoom == data.Rooms[roomIndex])
                         roomIndex++;
                     if (roomIndex == data.Rooms.Length)
                         hasVisitedRooms = true;
@@ -157,7 +169,7 @@ namespace ChalVerAssist
         // InitAvailability should always set it to false if TryDisallow does too, can't have the challenge starting and failing on every tick
         private void InitAvailability()
         {
-            // 
+            // Shouldn't 
             if (_forcedUnavailability)
                 return;
             if (data.Rooms != null)
@@ -174,6 +186,7 @@ namespace ChalVerAssist
             }
             if (data.AvoidRooms != null && data.AvoidRooms.Contains(playerRoom))
                 return;
+            OnActivate();
             available = true;
         }
         private void TryDisallow()
@@ -181,9 +194,8 @@ namespace ChalVerAssist
             available = false;
             if (data.AvoidRooms != null && data.AvoidRooms.Contains(playerRoom))
                 return;
-            if (data.Rooms != null && data.PathType == ChallengeData.PathTypeID.Strict && !data.Rooms.Contains(playerRoom))
+            if (data.Rooms != null && data.PathType == ChallengeData.PathTypeID.Strict && roomIndex > 0 && playerRoom != data.Rooms[roomIndex - 1] && playerRoom != data.Rooms[roomIndex] && (roomIndex < 2 || playerRoom != data.Rooms[roomIndex-2]))
                 return;
-            OnActivate();
             available = true;
         }
 
@@ -211,6 +223,11 @@ namespace ChalVerAssist
                     return;
                 }
             }
+            roomIndex = 0;
+            available = false;
+            hasVisitedRooms = false;
+            if (!data.MultipleCompletions)
+                _forcedUnavailability = true;
         }
 
         public void OnActivate()
@@ -223,11 +240,14 @@ namespace ChalVerAssist
             hasVisitedRooms = false;
             if (data.HasTimer)
                 timer.ResetTimer();
+            roomIndex = 0;
         }
 
         public void ResetRecords()
         {
             Fail();
+            if (data.HasTimer)
+                timer.ResetBestTime();
             ChallengeMSD.WipeRecord(data.Key);
         }
     }

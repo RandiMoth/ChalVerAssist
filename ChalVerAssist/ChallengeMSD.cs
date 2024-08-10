@@ -1,7 +1,9 @@
-﻿using System;
+﻿using IL.Menu;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 
 namespace ChalVerAssist
@@ -46,7 +48,6 @@ namespace ChalVerAssist
                     text += "<srchC>";
             }
             text += "<mpdA>";
-            ChalVerAssist.Logger.LogMessage("Saved!" + text);
             return text;
         }
         public void FromString(ref List<string> saveStrings)

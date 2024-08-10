@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using System.Linq;
 
 namespace ChalVerAssist
 {
@@ -8,7 +9,7 @@ namespace ChalVerAssist
     {
         public const string PLUGIN_GUID = "randi_moth.chalassist"; // This should be the same as the id in modinfo.json!
         public const string PLUGIN_NAME = "Server Challenge Tracker"; // This should be a human-readable version of your mod's name. This is used for log files and also displaying which mods get loaded. In general, it's a good idea to match this with your modinfo.json as well.
-        public const string PLUGIN_VERSION = "1.1.6"; // This follows semantic versioning. For more information, see https://semver.org/ - again, match what you have in modinfo.json
+        public const string PLUGIN_VERSION = "1.2.0"; // This follows semantic versioning. For more information, see https://semver.org/ - again, match what you have in modinfo.json
                                                       // It should go without saying, but for this to benefit other modders, the class *and* these const strings must be public.
 
 
@@ -23,13 +24,13 @@ namespace ChalVerAssist
 
         private void Awake()
         {
+            Logger = base.Logger;
             Hooks.Initialise();
         }
         public static new ManualLogSource Logger { get; private set; }
 
         public void OnEnable()
         {
-            Logger = base.Logger;
         }
     }
 }

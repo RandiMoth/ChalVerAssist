@@ -13,8 +13,6 @@ namespace ChalVerAssist
     {
         public ChallengeTimer(RainWorldGame game, Challenge challenge)
         {
-            camera = game.cameras[0];
-            currentRoom = camera.room.abstractRoom.name;
             this.challenge = challenge;
         }
         public void InitTimer(HUD.HUD hud)
@@ -37,14 +35,11 @@ namespace ChalVerAssist
         public int entranceNode;
         protected double target = -1;
         protected List<string> rooms = new List<string>();
-        private string currentRoom;
-        private int roomTracker = -1;
         private int cooldown = 0;
         public ChallengeTimerDisplay display;
         public BestTimeTracker bestTimeTracker;
         public BestTimeTracker prevTimeTracker;
         public double BestTime = -1;
-        private RoomCamera camera;
         public bool ActiveTimer
         {
             get
@@ -56,7 +51,6 @@ namespace ChalVerAssist
                 activeTimer = value;
             }
         }
-        private bool logFlag;
         private bool activeTimer;
         public void Update()
         {
@@ -71,12 +65,6 @@ namespace ChalVerAssist
             }
             if (!activeTimer && challenge.Available)
                 EnableTimer();
-        }
-        public void FromString(string str)
-        {
-            if (str == null)
-                return;
-
         }
         public void Finish()
         {
@@ -96,7 +84,6 @@ namespace ChalVerAssist
         public void ResetTimer()
         {
             activeTimer = false;
-            roomTracker = -1;
             cooldown = 120;
         }
         public void EnableTimer()
@@ -104,9 +91,8 @@ namespace ChalVerAssist
             display.CalcOffset();
             activeTimer = true;
             display.paused = false;
-            roomTracker = 0;
         }
-        protected virtual void ResetBestTime()
+        public void ResetBestTime()
         {
             BestTime = -1;
             if (bestTimeTracker == null)

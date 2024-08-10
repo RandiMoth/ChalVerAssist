@@ -11,19 +11,35 @@ namespace ChalVerAssist
         {
             On.ExtEnumInitializer.InitTypes += InitTypesHook;
             On.RainWorldGame.Update += RainWorldGameUpdateHook;
+            On.RainWorldGame.ctor += RainWorldGame_ctor;
             On.HUD.HUD.InitSinglePlayerHud += HUDInitHook;
             On.PlayerProgression.MiscProgressionData.ToString += SaveStringHook;
             On.PlayerProgression.MiscProgressionData.FromString += FromStringHook;
-            On.RainWorldGame.ctor += GameConstructorHook;
             On.RainWorld.OnModsInit += ModsInitHook;
             On.Menu.SlugcatSelectMenu.ctor += SlugcatSelectMenuConstructorHook;
             On.Ghost.StartConversation += Ghost_StartConversation;
+            On.ModManager.RefreshModsLists += ModManager_RefreshModsLists;
+        }
+
+        private static void RainWorldGame_ctor(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager manager)
+        {
+            ChallengeData.ReadChallenges();
+            Challenge.SelectedChallenge = ChallengeData.Instances.First(x => x.Key == "uturn");
+            orig(self, manager);
+        }
+
+        private static void ModManager_RefreshModsLists(On.ModManager.orig_RefreshModsLists orig, RainWorld rainWorld)
+        {
+            bool flag = ModManager.MSC;
+            orig(rainWorld);
+            if (ModManager.MSC != flag)
+                ChallengeData.ReadChallenges();
         }
 
         private static void Ghost_StartConversation(On.Ghost.orig_StartConversation orig, Ghost self)
         {
             orig(self);
-            if (Challenge.ActiveChallenge?.data.MeetEcho ?? false && self.worldGhost.ghostID == GhostWorldPresence.GetGhostID(Challenge.ActiveChallenge.data?.Rooms.Last().Split('_')[0] ?? "NoGhost"))
+            if (Challenge.ActiveChallenge?.data.MeetEcho ?? false && self.worldGhost.ghostID == GhostWorldPresence.GetGhostID(Challenge.ActiveChallenge?.data.Rooms?.Last().Split('_')[0] ?? "NoGhost"))
                 Challenge.ActiveChallenge.MetEcho = true;
         }
 
@@ -66,14 +82,6 @@ namespace ChalVerAssist
                 and other mods may stop working */
             }
         }
-        
-        private static void GameConstructorHook(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager manager)
-        {
-            orig(self, manager);
-            if (Challenge.SelectedChallenge != null)
-                _ = new Challenge(Challenge.SelectedChallenge, self);
-        }
-
 
         private static void HUDInitHook(On.HUD.HUD.orig_InitSinglePlayerHud orig, HUD.HUD self, RoomCamera cam)
         {
@@ -89,6 +97,8 @@ namespace ChalVerAssist
             {
                 Challenge.ActiveChallenge.Update();
             }
+            else if (Challenge.SelectedChallenge != null && self.IsStorySession && self.Players.Count > 0 && self.Players[0].realizedCreature != null)
+                _ = new Challenge(Challenge.SelectedChallenge, self);
         }
 
         private static void InitTypesHook(On.ExtEnumInitializer.orig_InitTypes orig)
