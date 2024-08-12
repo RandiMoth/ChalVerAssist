@@ -68,7 +68,7 @@ namespace ChalVerAssist
         {
             if (ChallengeMSD.Instance is null)
                 return orig(self);
-            ChalVerAssist.Logger.LogMessage("Starting save");
+            //ChalVerAssist.Logger.LogMessage("Starting save");
             bool hasData = false;
             if (self.unrecognizedSaveStrings.Any(x => Regex.Split(x, "<mpdB>")[0] == "SERVERCHALLENGE"))
             {
@@ -78,7 +78,7 @@ namespace ChalVerAssist
             string text = orig(self);
             if (!hasData)
                 text += ChallengeMSD.Instance.SaveToString();
-            ChalVerAssist.Logger.LogMessage("Total save!" + text);
+            //ChalVerAssist.Logger.LogMessage("Total save!" + text);
             return text;
         }
 
