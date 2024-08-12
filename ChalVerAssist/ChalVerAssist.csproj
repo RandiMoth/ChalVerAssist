@@ -69,6 +69,7 @@
     <Compile Include="ChallengeData.cs" />
     <Compile Include="GUI\ChallengeTimerDisplay.cs" />
     <Compile Include="GUI\ScugSelectOpener.cs" />
+    <Compile Include="GUI\SelectedChallengeDisplay.cs" />
     <Compile Include="Hooks.cs" />
     <Compile Include="ModTester.cs" />
     <Compile Include="RemixUI\RemixUI.cs" />

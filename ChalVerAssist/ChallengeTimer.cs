@@ -1,11 +1,5 @@
 ﻿using ChalVerAssist.GUI;
-using HUD;
-using JetBrains.Annotations;
-using MoreSlugcats;
-using RWCustom;
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace ChalVerAssist
 {
@@ -14,6 +8,8 @@ namespace ChalVerAssist
         public ChallengeTimer(RainWorldGame game, Challenge challenge)
         {
             this.challenge = challenge;
+            if (ChallengeMSD.Instance?.ChallengeTimes.ContainsKey(challenge.data.Key) ?? false)
+                BestTime = ChallengeMSD.Instance.ChallengeTimes[challenge.data.Key];
         }
         public void InitTimer(HUD.HUD hud)
         {
@@ -27,7 +23,7 @@ namespace ChalVerAssist
             bestTimeTracker.BestTime = BestTime;
             if (challenge.allowed)
             {
-                prevTimeTracker = new BestTimeTracker(hud, null, hud.fContainers[1], this, "Previous time: ");
+                prevTimeTracker = new BestTimeTracker(hud, null, hud.fContainers[1], this, "rwsc_prev_time_prefix");
                 hud.AddPart(prevTimeTracker);
             }
         }

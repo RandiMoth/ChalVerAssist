@@ -1,9 +1,7 @@
-﻿using System;
+﻿using ChalVerAssist.GUI;
+using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Threading;
 using UnityEngine;
 
 namespace ChalVerAssist
@@ -22,16 +20,35 @@ namespace ChalVerAssist
                 timer = new ChallengeTimer(game, this);
         }
 
+        // Static elements
         public static Challenge ActiveChallenge;
         public static ChallengeData SelectedChallenge;
 
+        // Main elements
         public RainWorldGame game;
         public Player player;
+        public ChallengeData data;
+        public ChallengeTimer timer;
+        private RoomCamera camera;
+
+        // HUD
+        public SelectedChallengeDisplay display;
+        public void InitHUD(HUD.HUD hud)
+        {
+            display = new SelectedChallengeDisplay(hud, hud.fContainers[1], this);
+            hud.AddPart(display);
+            if (data.HasTimer)
+                timer.InitTimer(hud);
+        }
+
+        // Data
+        public string Name => game.rainWorld.inGameTranslator.Translate(data.Key + "_name");
+        public string Description => game.rainWorld.inGameTranslator.Translate(data.Key + "_name");
+
+        // Availability
         private bool available;
         private bool _forcedUnavailability;
         public bool allowed { get; private set; }
-        public ChallengeData data;
-        public ChallengeTimer timer;
         public bool Available
         {
             get { return available; }
@@ -44,6 +61,8 @@ namespace ChalVerAssist
                 }
             }
         }
+
+        // Room data
         private string playerRoom;
         public string PlayerRoom
         {
@@ -51,13 +70,12 @@ namespace ChalVerAssist
             set { 
                 if (playerRoom != value)
                 {
-                    ChalVerAssist.Logger.LogMessage($"New room! {value}");
+                    //ChalVerAssist.Logger.LogMessage($"New room! {value}");
                     playerRoom = value;
                     dirtyRoom = true;
                 }
             }
         }
-        private RoomCamera camera;
         private HashSet<string> visitedRooms = null;
         private int roomIndex = 0;
         private bool dirtyRoom = false;
@@ -74,6 +92,8 @@ namespace ChalVerAssist
             if (data.AllowedRegions != null && !data.AllowedRegions.Contains(game.world.region.name))
                 return;
             if (data.FirstCycle && game.GetStorySession.saveState.cycleNumber != 0)
+                return;
+            if (data.IsMSC != ModManager.MSC)
                 return;
             if (data.MeetEcho)
             {
@@ -142,8 +162,8 @@ namespace ChalVerAssist
             // Room crossing win condition
             if (data.Rooms != null && !hasVisitedRooms && dirtyRoom && RoomSpecificConditions())
             {
-                ChalVerAssist.Logger.LogMessage($"Room check: {playerRoom}. Current index: {roomIndex}.");
-                ChalVerAssist.Logger.LogMessage(string.Join(", ", data.Rooms));
+                //ChalVerAssist.Logger.LogMessage($"Room check: {playerRoom}. Current index: {roomIndex}.");
+                //ChalVerAssist.Logger.LogMessage(string.Join(", ", data.Rooms));
                 dirtyRoom = false;
                 if (data.PathType == ChallengeData.PathTypeID.Unordered)
                 {
@@ -238,6 +258,7 @@ namespace ChalVerAssist
         public void Fail()
         {
             hasVisitedRooms = false;
+            visitedRooms = new HashSet<string>();
             if (data.HasTimer)
                 timer.ResetTimer();
             roomIndex = 0;

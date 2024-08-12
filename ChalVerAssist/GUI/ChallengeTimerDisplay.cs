@@ -13,16 +13,18 @@ namespace ChalVerAssist.GUI
 {
     public class ChallengeTimerDisplay : SpeedRunTimer
     {
-        public ChallengeTimer challenge;
+        public ChallengeTimer timer;
 
         private double offset;
+        private string prefix;
 
         public bool paused;
 
-        public ChallengeTimerDisplay(HUD.HUD hud, PlayerSpecificMultiplayerHud multiHud, FContainer fcontainer, ChallengeTimer challenge) : base(hud, multiHud, fcontainer)
+        public ChallengeTimerDisplay(HUD.HUD hud, PlayerSpecificMultiplayerHud multiHud, FContainer fcontainer, ChallengeTimer timer) : base(hud, multiHud, fcontainer)
         {
-            this.challenge = challenge;
-            pos = new Vector2(0.2f + 20, (int)(hud.rainWorld.options.ScreenSize.y - 30f) + 0.2f);
+            this.timer = timer;
+            prefix = hud.rainWorld.inGameTranslator.Translate("rwsc_timer_label").Replace("<NAME>", timer.challenge.Name);
+            pos = new Vector2(0.2f + 20, (int)(hud.rainWorld.options.ScreenSize.y - 60f) + 0.2f);
             lastPos = pos;
         }
 
@@ -55,7 +57,7 @@ namespace ChalVerAssist.GUI
             {
                 remainVisibleCounter--;
             }
-            if (challenge.ActiveTimer || remainVisibleCounter > 0)
+            if (timer.ActiveTimer || remainVisibleCounter > 0)
             {
                 fade = Mathf.Max(Mathf.Min(1f, fade + 0.1f), hud.foodMeter.fade);
             }
@@ -73,13 +75,13 @@ namespace ChalVerAssist.GUI
                 if (campaignTimeTracker != null && !RainWorld.lockGameTimer)
                 {
                     double mills = campaignTimeTracker.TotalFreeTime - offset;
-                    timeLabel.text = "U-Turn time: " + TimeSpan.FromMilliseconds(mills).GetIGTFormat(includeMilliseconds: true);
+                    timeLabel.text = prefix + TimeSpan.FromMilliseconds(mills).GetIGTFormat(includeMilliseconds: true);
                 }
             }
         }
         public override void Draw(float timeStacker)
         {
-            if (!challenge.ActiveTimer)
+            if (!timer.ActiveTimer)
             {
                 timeLabel.alpha = Mathf.Pow(Mathf.Max(0f, Mathf.Lerp(lastFade, fade, timeStacker)), 1.5f);
             }
@@ -95,11 +97,11 @@ namespace ChalVerAssist.GUI
     public class BestTimeTracker : SpeedRunTimer
     {
 
-        public BestTimeTracker(HUD.HUD hud, PlayerSpecificMultiplayerHud multiHud, FContainer fcontainer, ChallengeTimer challenge, string label = "Best time: ") : base(hud, multiHud, fcontainer)
+        public BestTimeTracker(HUD.HUD hud, PlayerSpecificMultiplayerHud multiHud, FContainer fcontainer, ChallengeTimer timer, string label = "rwsc_best_time_prefix") : base(hud, multiHud, fcontainer)
         {
-            this.challenge = challenge;
-            this.label = label;
-            timeLabel.text = label + "None";
+            this.timer = timer;
+            this.label = hud.rainWorld.inGameTranslator.Translate(label).Replace("<NAME>", this.timer.challenge.Name);
+            timeLabel.text = this.label + hud.rainWorld.inGameTranslator.Translate("none");
             instanceNum = InstanceCount++;
             pos = new Vector2((int)hud.rainWorld.options.ScreenSize.x + 0.2f - 20, (int)(hud.rainWorld.options.ScreenSize.y - 30f - 30f * instanceNum) + 0.2f);
             lastPos = pos;
@@ -138,7 +140,7 @@ namespace ChalVerAssist.GUI
         }
         private static int InstanceCount;
         private int instanceNum;
-        public ChallengeTimer challenge;
+        public ChallengeTimer timer;
 
         private double bestTime = -1;
 
@@ -153,7 +155,7 @@ namespace ChalVerAssist.GUI
                 bestTime = value;
                 hadRuns = value != -1;
                 if (value == -1)
-                    timeLabel.text = label + "None";
+                    timeLabel.text = label + hud.rainWorld.inGameTranslator.Translate("none");
                 else
                     timeLabel.text = label + TimeSpan.FromMilliseconds(value).GetIGTFormat(includeMilliseconds: true);
             }

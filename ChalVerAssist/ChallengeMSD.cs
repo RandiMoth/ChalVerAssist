@@ -1,9 +1,6 @@
-﻿using IL.Menu;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 
 namespace ChalVerAssist
@@ -66,7 +63,7 @@ namespace ChalVerAssist
                     switch (array[0])
                     {
                         case "SERVERCHALLENGE":
-                            chalData = saveStrings[i];
+                            chalData = array[1];
                             saveStrings.RemoveAt(i);
                             foundData = true;
                             break;
@@ -81,9 +78,11 @@ namespace ChalVerAssist
             }
             if (string.IsNullOrEmpty(chalData))
                 return;
+            //ChalVerAssist.Logger.LogMessage("Found data: " + chalData);
             array = Regex.Split(chalData, "<srchA>");
             for (int i = 0; i < array.Length;i++)
             {
+                //ChalVerAssist.Logger.LogMessage("Data field: " + array[i]);
                 try
                 {
                     fields = Regex.Split(array[i], "<srchB>");
@@ -93,6 +92,7 @@ namespace ChalVerAssist
                             variables = Regex.Split(fields[1], "<srchC>");
                             for (int j = 0; j < variables.Length; j++)
                             {
+                                //ChalVerAssist.Logger.LogMessage("Variable: " + variables[j]);
                                 varvalues = Regex.Split(variables[j], "<srchD>");
                                 if (ChallengeTimes.ContainsKey(varvalues[0]))
                                     ChallengeTimes[varvalues[0]] = float.Parse(varvalues[1]);

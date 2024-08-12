@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace ChalVerAssist
@@ -108,6 +106,12 @@ namespace ChalVerAssist
                         case "avoidrooms":
                             AvoidRooms = ((List<object>)kvp.Value).ConvertAll(x => x.ToString()).ToArray(); break;
 
+                        // Room-specific conditions
+                        case "meetecho":
+                            MeetEcho = Convert.ToBoolean(kvp.Value); break;
+                        case "crossgates":
+                            CrossGates = Convert.ToBoolean(kvp.Value); break;
+
                         // Timer
                         case "hastimer":
                             HasTimer = Convert.ToBoolean(kvp.Value); break;
@@ -136,7 +140,7 @@ namespace ChalVerAssist
         }
 
         public static List<ChallengeData> Instances = new List<ChallengeData>();
-        public static void ReadChallenges()
+        public static void ReadChallenges() 
         {
             string prevChalKey = Challenge.SelectedChallenge?.Key;
             ClearChallenges();
@@ -153,7 +157,7 @@ namespace ChalVerAssist
             }
             if (files == null || files.Length == 0)
                 return;
-            ChalVerAssist.Logger.LogMessage("Starting reading challenges!");
+            //ChalVerAssist.Logger.LogMessage("Starting reading challenges!");
             foreach (string file in files)
             {
                 if (Path.GetExtension(file) != ".json")

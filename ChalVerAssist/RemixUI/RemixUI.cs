@@ -14,7 +14,7 @@ namespace ChalVerAssist
             {
             new OpTab(this, OptionInterface.Translate("Settings"))
             };
-            var opLabel = new OpLabel(new Vector2(100f, 560f), new Vector2(400f, 30f), "Settings", FLabelAlignment.Center, bigText: true);
+            var opLabel = new OpLabel(new Vector2(100f, 560f), new Vector2(400f, 30f), Translate("rwsc_settings"), FLabelAlignment.Center, bigText: true);
             Tabs[0].AddItems(opLabel);
             AddKeyBindOption(cfgUTurnTimerReset, Tabs[0], 40);
         }
@@ -40,10 +40,10 @@ namespace ChalVerAssist
             float num3 = 550f;
             OpKeyBinder opKeyBinder = new OpKeyBinder(configurable, new Vector2(num2, num3 - num), new Vector2(20, 20))
             {
-                description = configurable.info.description
+                description = Translate(configurable.info.description)
             };
             UIfocusable.MutualVerticalFocusableBind(opKeyBinder, opKeyBinder);
-            OpLabel opLabel2 = new OpLabel(new Vector2(40 + num2, num3 - num), new Vector2(170f, 36f), Custom.ReplaceLineDelimeters(configurable.info.autoTab), FLabelAlignment.Left, bigText: false)
+            OpLabel opLabel2 = new OpLabel(new Vector2(40 + num2, num3 - num), new Vector2(170f, 36f), Custom.ReplaceLineDelimeters(Translate(configurable.info.autoTab)), FLabelAlignment.Left, bigText: false)
             {
                 bumpBehav = opKeyBinder.bumpBehav,
                 description = opKeyBinder.description
