@@ -14,7 +14,6 @@ namespace ChalVerAssist.GUI
         public FLabel label;
         private float fade;
         private float lastFade;
-        private int remainVisibleCounter;
 
         public SelectedChallengeDisplay(HUD.HUD hud, FContainer fContainer, Challenge challenge) : base(hud)
         {

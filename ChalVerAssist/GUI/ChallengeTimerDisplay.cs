@@ -69,7 +69,7 @@ namespace ChalVerAssist.GUI
             {
                 fade = 0f;
             }
-            if (!paused && hud.owner is Player player && player.abstractCreature.world != null && player.abstractCreature.world.game != null && player.abstractCreature.world.game.IsStorySession)
+            if (!paused && hud.owner is Player player && (player.abstractCreature.world?.game?.IsStorySession ?? false))
             {
                 CampaignTimeTracker campaignTimeTracker = GetCampaignTimeTracker(player.abstractCreature.world.game.GetStorySession.saveStateNumber);
                 if (campaignTimeTracker != null && !RainWorld.lockGameTimer)

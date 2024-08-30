@@ -94,6 +94,8 @@ namespace ChalVerAssist
             if (bestTimeTracker == null)
                 return;
             bestTimeTracker.BestTime = -1;
+            if (prevTimeTracker == null)
+                return;
             prevTimeTracker.BestTime = -1;
         }
     }

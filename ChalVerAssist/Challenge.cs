@@ -61,6 +61,7 @@ namespace ChalVerAssist
                 }
             }
         }
+        private bool _pauseForRoom = false;
 
         // Room data
         private string playerRoom;
@@ -72,15 +73,19 @@ namespace ChalVerAssist
                 {
                     //ChalVerAssist.Logger.LogMessage($"New room! {value}");
                     playerRoom = value;
-                    dirtyRoom = true;
+                    _dirtyRoom = true;
+                    _pauseForRoom = false;
                 }
             }
         }
         private HashSet<string> visitedRooms = null;
         private int roomIndex = 0;
-        private bool dirtyRoom = false;
+        private bool _dirtyRoom = false;
         private bool hasVisitedRooms = false;
         public bool MetEcho = false; // Handled with a hook in Ghost.StartConversation()
+
+        // Other
+        private bool _holdsDownKey = false;
 
         public void SetAllowed()
         {
@@ -121,8 +126,15 @@ namespace ChalVerAssist
         {
             if (Input.GetKey(ChalVerOptionInterface.cfgUTurnTimerReset.Value))
             {
-                ResetRecords();
+                if (!_holdsDownKey)
+                {
+                    _holdsDownKey = true;
+                    PauseForRoom();
+                    ResetRecords();
+                }
             }
+            else
+                _holdsDownKey = false;
             if (!allowed)
                 return;
             // Slugcat must exist for the challenge to be updated
@@ -145,6 +157,8 @@ namespace ChalVerAssist
             if (!available)
             {
                 InitAvailability();
+                if (available)
+                    OnActivate();
             }
 
             // See if the challenge should fail; stop execution if it's not even in progress
@@ -160,11 +174,11 @@ namespace ChalVerAssist
             else
                 return;
             // Room crossing win condition
-            if (data.Rooms != null && !hasVisitedRooms && dirtyRoom && RoomSpecificConditions())
+            if (data.Rooms != null && !hasVisitedRooms && _dirtyRoom && RoomSpecificConditions())
             {
                 //ChalVerAssist.Logger.LogMessage($"Room check: {playerRoom}. Current index: {roomIndex}.");
                 //ChalVerAssist.Logger.LogMessage(string.Join(", ", data.Rooms));
-                dirtyRoom = false;
+                _dirtyRoom = false;
                 if (data.PathType == ChallengeData.PathTypeID.Unordered)
                 {
                     if (data.Rooms.Contains(playerRoom) && !visitedRooms.Contains(playerRoom))
@@ -190,7 +204,7 @@ namespace ChalVerAssist
         private void InitAvailability()
         {
             // Shouldn't 
-            if (_forcedUnavailability)
+            if (_forcedUnavailability || _pauseForRoom)
                 return;
             if (data.Rooms != null)
             {
@@ -206,7 +220,6 @@ namespace ChalVerAssist
             }
             if (data.AvoidRooms != null && data.AvoidRooms.Contains(playerRoom))
                 return;
-            OnActivate();
             available = true;
         }
         private void TryDisallow()
@@ -226,6 +239,15 @@ namespace ChalVerAssist
                 return false;
 
             return true;
+        }
+        public void PauseForRoom()
+        {
+            _pauseForRoom = true;
+            if (available)
+            {
+                available = false;
+                Fail();
+            }
         }
 
         public void TryComplete()
@@ -248,6 +270,8 @@ namespace ChalVerAssist
             hasVisitedRooms = false;
             if (!data.MultipleCompletions)
                 _forcedUnavailability = true;
+            if (!(ChallengeMSD.Instance?.CompletedChallenges.Contains(data.Key) ?? true))
+                ChallengeMSD.Instance.CompletedChallenges.Add(data.Key);
         }
 
         public void OnActivate()
@@ -266,7 +290,11 @@ namespace ChalVerAssist
 
         public void ResetRecords()
         {
-            Fail();
+            if (available)
+            {
+                available = false;
+                Fail();
+            }
             if (data.HasTimer)
                 timer.ResetBestTime();
             ChallengeMSD.WipeRecord(data.Key);
