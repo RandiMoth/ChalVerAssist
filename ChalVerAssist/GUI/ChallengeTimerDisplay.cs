@@ -1,13 +1,8 @@
-﻿using RWCustom;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static MoreSlugcats.SpeedRunTimer;
-using UnityEngine;
+﻿using HUD;
 using MoreSlugcats;
-using HUD;
+using RWCustom;
+using System;
+using UnityEngine;
 
 namespace ChalVerAssist.GUI
 {

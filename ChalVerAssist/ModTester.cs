@@ -1,10 +1,6 @@
 ﻿using MoreSlugcats;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChalVerAssist
 {
@@ -74,7 +70,7 @@ namespace ChalVerAssist
             {
                 if (!x.config.Value)
                     continue;
-                switch(x.config.key)
+                switch (x.config.key)
                 {
                     case "cfgKeyItemPassaging":
                     case "cfgMonkBreathTime":

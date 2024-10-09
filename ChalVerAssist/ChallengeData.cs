@@ -39,7 +39,8 @@ namespace ChalVerAssist
         // Other
         public List<KeyValuePair<string, object>> unrecognisedFields = new List<KeyValuePair<string, object>>();
 
-        public ChallengeData(string path) {
+        public ChallengeData(string path)
+        {
             Dictionary<string, object> data = null;
             if (File.Exists(path))
             {
@@ -140,14 +141,14 @@ namespace ChalVerAssist
         }
 
         public static List<ChallengeData> Instances = new List<ChallengeData>();
-        public static void ReadChallenges() 
+        public static void ReadChallenges()
         {
             string prevChalKey = Challenge.SelectedChallenge?.Key;
             ClearChallenges();
             string[] files;
             try
             {
-                files = AssetManager.ListDirectory("serverchallenges", moddedOnly:true);
+                files = AssetManager.ListDirectory("serverchallenges", moddedOnly: true);
             }
             catch (Exception ex)
             {

@@ -14,7 +14,7 @@ namespace ChalVerAssist
 
         public static ChallengeMSD Instance;
 
-        public Dictionary<string,double> ChallengeTimes = new Dictionary<string, double>();
+        public Dictionary<string, double> ChallengeTimes = new Dictionary<string, double>();
 
         public List<string> CompletedChallenges = new List<string>();
 
@@ -30,7 +30,7 @@ namespace ChalVerAssist
         {
             string text = "SERVERCHALLENGE<mpdB>";
             text += "CHALTIMES<srchB>";
-            foreach (KeyValuePair<string,double> kvp in ChallengeTimes)
+            foreach (KeyValuePair<string, double> kvp in ChallengeTimes)
             {
                 text += kvp.Key;
                 text += string.Format("<srchD>{0}", kvp.Value);
@@ -38,7 +38,7 @@ namespace ChalVerAssist
                     text += "<srchC>";
             }
             text += "<srchA>COMPCHALS<srchB>";
-            foreach(var str in CompletedChallenges)
+            foreach (var str in CompletedChallenges)
             {
                 text += str;
                 if (str != CompletedChallenges.Last())
@@ -80,7 +80,7 @@ namespace ChalVerAssist
                 return;
             //ChalVerAssist.Logger.LogMessage("Found data: " + chalData);
             array = Regex.Split(chalData, "<srchA>");
-            for (int i = 0; i < array.Length;i++)
+            for (int i = 0; i < array.Length; i++)
             {
                 //ChalVerAssist.Logger.LogMessage("Data field: " + array[i]);
                 try

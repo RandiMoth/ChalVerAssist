@@ -52,7 +52,8 @@ namespace ChalVerAssist
         public bool Available
         {
             get { return available; }
-            set {
+            set
+            {
                 _forcedUnavailability = !value; // A challenge shouldn't be force set to be available, but it should be possible to force fail
                 if (_forcedUnavailability && available)
                 {
@@ -68,7 +69,8 @@ namespace ChalVerAssist
         public string PlayerRoom
         {
             get { return playerRoom; }
-            set { 
+            set
+            {
                 if (playerRoom != value)
                 {
                     //ChalVerAssist.Logger.LogMessage($"New room! {value}");
@@ -152,7 +154,7 @@ namespace ChalVerAssist
             // Timer can still change if the challenge isn't available, such as fading out, so it should be updated too.
             if (data.HasTimer)
                 timer.Update();
-            
+
             // Start challenge
             if (!available)
             {
@@ -227,7 +229,7 @@ namespace ChalVerAssist
             available = false;
             if (data.AvoidRooms != null && data.AvoidRooms.Contains(playerRoom))
                 return;
-            if (data.Rooms != null && data.PathType == ChallengeData.PathTypeID.Strict && roomIndex > 0 && playerRoom != data.Rooms[roomIndex - 1] && playerRoom != data.Rooms[roomIndex] && (roomIndex < 2 || playerRoom != data.Rooms[roomIndex-2]))
+            if (data.Rooms != null && data.PathType == ChallengeData.PathTypeID.Strict && roomIndex > 0 && playerRoom != data.Rooms[roomIndex - 1] && playerRoom != data.Rooms[roomIndex] && (roomIndex < 2 || playerRoom != data.Rooms[roomIndex - 2]))
                 return;
             available = true;
         }
